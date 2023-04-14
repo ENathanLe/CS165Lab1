@@ -38,9 +38,13 @@ int main()
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto time = end_time - start_time;
 	
-	const int numThreads = 25;
+	const int numThreads = 26;
 
-	//std::thread t1();
+	vector<std::thread> threads;
+	for (int i = 0; i < numThreads; i++) {
+		std::thread ti(findHash, GOALHASH, PASSWORDSIZE, numThreads, 1, i);
+		threads.push_back(ti);
+	}
 	/*
 	for (short i = 0; i < alphabet.size(); i++) {
 		password[0] = alphabet[i];
@@ -96,7 +100,7 @@ int main()
 
 }
 
-string findHash(string goalHash, int passwordLen, int char0, int char1 = 0, int char2 = 0, int char3 = 0, int char4 = 0, int char5 = 0) {
+string findHash(string goalHash, int passwordLen, int incrementn = 1, int incrementm = 1, int char5 = 0, int char4 = 0, int char3 = 0, int char2 = 0, int char1 = 0, int char0 = 0) {
 	string password;
 	password.resize(passwordLen);
 	string hash;
@@ -114,9 +118,9 @@ string findHash(string goalHash, int passwordLen, int char0, int char1 = 0, int 
 				password[2] = alphabet[k];
 				for (short l = char3; l < alphabet.size(); l++) {
 					password[3] = alphabet[l];
-					for (short m = char4; m < alphabet.size(); m++) {
+					for (short m = char4; m < alphabet.size(); m += incrementm) {
 						password[4] = alphabet[m];
-						for (short n = char5; n < alphabet.size(); n++) {
+						for (short n = char5; n < alphabet.size(); n += incrementn) {
 							password[5] = alphabet[n];
 							hash = generateHash(password, SALT, MAGIC);
 							hashes++;
@@ -223,13 +227,13 @@ string generateHash(string password, string salt, string magic) {
 	string output = "";
 	bitset<6> curChar;
 	for (int i = 1; i < 127; i += 6) {
-		curChar[5] = b[i+5];
-		curChar[4] = b[i +4];
+		curChar[5] = b[i+4];
+		curChar[4] = b[i +3];
 		if (i > 1) {
-			curChar[3] = b[i +3];
-			curChar[2] = b[i +2];
-			curChar[1] = b[i +1];
-			curChar[0] = b[i];
+			curChar[3] = b[i +2];
+			curChar[2] = b[i +1];
+			curChar[1] = b[i];
+			curChar[0] = b[i-1];
 		}
 		else {
 			curChar[3] = 0;
