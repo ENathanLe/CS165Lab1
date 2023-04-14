@@ -9,11 +9,11 @@
 #include <bitset>
 #include <openssl/md5.h>
 #include <chrono>
+#include <thread>
 
 
 using namespace std;
 
-const int PWDLEN = 6;
 const string SALT = /*"4fTgjp6q";		//team 27*/ "hfT7jp2q";
 const string MAGIC = "$1$";
 const string GOALHASH = /*"0s6haNhWTl/ejCBFXdJRj1";*/ "wPwz7GC6xLt9eQZ9eJkaq.";
@@ -38,6 +38,9 @@ int main()
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto time = end_time - start_time;
 	
+	const int numThreads = 25;
+
+	//std::thread t1();
 	/*
 	for (short i = 0; i < alphabet.size(); i++) {
 		password[0] = alphabet[i];
@@ -64,7 +67,7 @@ int main()
 					if (hashes > 9999) {
 						end_time = std::chrono::high_resolution_clock::now();
 						time = end_time - start_time;
-						std::cout << "time:" << time/std::chrono::milliseconds(1) << "hashes per second: " << (hashes / ((time / std::chrono::milliseconds(1)) / 1000.0)) << endl;
+						std::cout << "time:" << time/std::chrono::milliseconds(1) << " hashes per second: " << (hashes / ((time / std::chrono::milliseconds(1)) / 1000.0)) << endl;
 						std::cout << "current password: " << password << endl;
 						hashes = 0;
 						start_time = std::chrono::high_resolution_clock::now();
@@ -134,7 +137,10 @@ string generateHash(string password, string salt, string magic) {
 		if (i % 7 != 0) nextIntermediate += password;
 		
 		if (i % 2 == 0) nextIntermediate += password;
-		else nextIntermediate += intermediate;
+		else {
+			temp.assign(intermediateHash, intermediateHash + MD5SIZE);
+			nextIntermediate += temp;
+		}
 		
 		unsigned char* nextChar = (unsigned char*)nextIntermediate.c_str();
 		MD5(nextChar, nextIntermediate.size(), intermediateHash);
@@ -148,7 +154,7 @@ string generateHash(string password, string salt, string magic) {
 
 	const size_t N = 16;  // bound on string length
 	bitset<N * 8> b;
-	for (int i = 0; i < MD5SIZE; ++i) {
+	for (int i = 0; i < MD5SIZE; i++) {
 		char c = rearranged[i];
 		for (int j = 7; j >= 0 && c; --j) {
 			if (c & 0x1) {
@@ -160,14 +166,14 @@ string generateHash(string password, string salt, string magic) {
 
 	string output = "";
 	bitset<6> curChar;
-	for (int i = 127; i >= 0; i -= 6) {
-		curChar[5] = b[i];
-		curChar[4] = b[i - 1];
+	for (int i = 1; i < 127; i += 6) {
+		curChar[5] = b[i+5];
+		curChar[4] = b[i +4];
 		if (i > 1) {
-			curChar[3] = b[i - 2];
-			curChar[2] = b[i - 3];
-			curChar[1] = b[i - 4];
-			curChar[0] = b[i - 5];
+			curChar[3] = b[i +3];
+			curChar[2] = b[i +2];
+			curChar[1] = b[i +1];
+			curChar[0] = b[i];
 		}
 		else {
 			curChar[3] = 0;
