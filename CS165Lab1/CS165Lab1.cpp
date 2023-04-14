@@ -18,6 +18,7 @@ const string SALT = /*"4fTgjp6q";		//team 27*/ "hfT7jp2q";
 const string MAGIC = "$1$";
 const string GOALHASH = /*"0s6haNhWTl/ejCBFXdJRj1";*/ "wPwz7GC6xLt9eQZ9eJkaq.";
 const string ascii64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const string alphabet = "abcdefghijklmnopqrstuvwxyz";
 const int PASSWORDSIZE = 6;
 const int SALTSIZE = 8;
 const int MAGICSIZE = 3;
@@ -28,8 +29,7 @@ string generateHash(string password, string salt, string magic);
 
 int main()
 {
-	string alphabet = "abcdefghijklmnopqrstuvwxyz";	//./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ unused
-
+	
 	string password = "aaaaaa";
 	bool found = false;
 	string hash;
@@ -94,6 +94,62 @@ int main()
 		std::cout << "matches" << endl;
 	std::cout << "hash: " << hash << "\ndesired: wPwz7GC6xLt9eQZ9eJkaq." << endl;
 
+}
+
+string findHash(string goalHash, int passwordLen, int char0, int char1 = 0, int char2 = 0, int char3 = 0, int char4 = 0, int char5 = 0) {
+	string password;
+	password.resize(passwordLen);
+	string hash;
+	int hashes = 0;
+	bool found = false;
+	auto start_time = std::chrono::high_resolution_clock::now();
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto time = end_time - start_time;
+
+	for (short i = char0; i < alphabet.size(); i++) {
+		password[0] = alphabet[i];
+		for (short j = char1; j < alphabet.size(); j++) {
+			password[1] = alphabet[j];
+			for (short k = char2; k < alphabet.size(); k++) {
+				password[2] = alphabet[k];
+				for (short l = char3; l < alphabet.size(); l++) {
+					password[3] = alphabet[l];
+					for (short m = char4; m < alphabet.size(); m++) {
+						password[4] = alphabet[m];
+						for (short n = char5; n < alphabet.size(); n++) {
+							password[5] = alphabet[n];
+							hash = generateHash(password, SALT, MAGIC);
+							hashes++;
+							if (hash == GOALHASH) {
+								found = true;
+								break;
+							}
+						}
+						if (found)break;
+
+					}
+					if (hashes > 9999) {
+						end_time = std::chrono::high_resolution_clock::now();
+						time = end_time - start_time;
+						std::cout << "time:" << time / std::chrono::milliseconds(1) << " hashes per second: " << (hashes / ((time / std::chrono::milliseconds(1)) / 1000.0)) << endl;
+						std::cout << "current password: " << password << endl;
+						hashes = 0;
+						start_time = std::chrono::high_resolution_clock::now();
+					}
+					if (found)break;
+
+				}
+				if (found)break;
+
+			}
+			if (found)break;
+
+		}
+		if (found)break;
+
+	}
+
+	std::cout << "I FOUND IT! " << found << " password is: " << password << endl;
 }
 
 
