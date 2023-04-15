@@ -2,7 +2,7 @@
 //
 
 #define OPENSSL_NO_DEPRECATED
-#define OPENSSL_API_COMPAT 10002
+#define OPENSSL_API_COMPAT 0x10101000L
 
 #include <iostream>
 #include <string>
@@ -10,13 +10,14 @@
 #include <openssl/md5.h>
 #include <chrono>
 #include <thread>
+#include <vector>
 
 
 using namespace std;
 
-const string SALT = /*"4fTgjp6q";		//team 27*/ "hfT7jp2q";
+const string SALT = "4fTgjp6q";		//team 27 "hfT7jp2q";
 const string MAGIC = "$1$";
-const string GOALHASH = /*"0s6haNhWTl/ejCBFXdJRj1";*/ "wPwz7GC6xLt9eQZ9eJkaq.";
+const string GOALHASH = "0s6haNhWTl/ejCBFXdJRj1"; /*"wPwz7GC6xLt9eQZ9eJkaq.";*/
 const string ascii64 = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const string alphabet = "abcdefghijklmnopqrstuvwxyz";
 const int PASSWORDSIZE = 6;
@@ -26,10 +27,11 @@ const int MD5SIZE = 16;
 
 
 string generateHash(string password, string salt, string magic);
+string findHash(int passwordLen, int incrementn, int incrementm, int char5, int char4, int char3, int char2, int char1, int char0);
 
 int main()
 {
-	
+	/*
 	string password = "aaaaaa";
 	bool found = false;
 	string hash;
@@ -37,70 +39,32 @@ int main()
 	auto start_time = std::chrono::high_resolution_clock::now();
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto time = end_time - start_time;
-	
-	const int numThreads = 26;
-
-	vector<std::thread> threads;
-	for (int i = 0; i < numThreads; i++) {
-		std::thread ti(findHash, GOALHASH, PASSWORDSIZE, numThreads, 1, i);
-		threads.push_back(ti);
-	}
-	/*
-	for (short i = 0; i < alphabet.size(); i++) {
-		password[0] = alphabet[i];
-		for (short j = 0; j < alphabet.size(); j++) {
-			password[1] = alphabet[j];
-			for (short k = 0; k < alphabet.size(); k++) {
-				password[2] = alphabet[k];
-				for (short l = 0; l < alphabet.size(); l++) {
-					password[3] = alphabet[l];
-					for (short m = 0; m < alphabet.size(); m++) {
-						password[4] = alphabet[m];
-						for (short n = 0; n < alphabet.size(); n++) {
-							password[5] = alphabet[n];
-							hash = generateHash(password, SALT, MAGIC);
-							hashes++;
-							if (hash == GOALHASH) {
-								found = true;
-								break;
-							}
-						}
-						if (found)break;
-						
-					}
-					if (hashes > 9999) {
-						end_time = std::chrono::high_resolution_clock::now();
-						time = end_time - start_time;
-						std::cout << "time:" << time/std::chrono::milliseconds(1) << " hashes per second: " << (hashes / ((time / std::chrono::milliseconds(1)) / 1000.0)) << endl;
-						std::cout << "current password: " << password << endl;
-						hashes = 0;
-						start_time = std::chrono::high_resolution_clock::now();
-					}
-					if (found)break;
-					
-				}
-				if (found)break;
-				
-			}
-			if (found)break;
-			
-		}
-		if (found)break;
-		
-	}
-
-	std::cout << "I FOUND IT! " << found << " password is: " << password << endl;
 	*/
+	
+	const int numThreads = 2;
+	
+	vector<std::thread> threads;
+	
+	for (int i = 0; i < numThreads; i++) {
+		threads.push_back(std::thread(findHash, PASSWORDSIZE, numThreads, 1, i, 0, 0, 0, 0, 0));
+	}
 
-	password = "zhgnnd";
+	for (std::thread& t : threads) {
+		if (t.joinable())
+			t.join();
+	}
+
+	/*
+	password = "czormg";
 	hash = generateHash(password, SALT, MAGIC);
-	if (hash == "wPwz7GC6xLt9eQZ9eJkaq.")
+	if (hash == "rhb3sPONC2VlUS2CG4JFe0")
 		std::cout << "matches" << endl;
-	std::cout << "hash: " << hash << "\ndesired: wPwz7GC6xLt9eQZ9eJkaq." << endl;
+	std::cout << "hash: " << hash << "\ndesired: rhb3sPONC2VlUS2CG4JFe0" << endl;
+	*/
 
 }
 
-string findHash(string goalHash, int passwordLen, int incrementn = 1, int incrementm = 1, int char5 = 0, int char4 = 0, int char3 = 0, int char2 = 0, int char1 = 0, int char0 = 0) {
+string findHash(int passwordLen, int incrementn, int incrementm, int char5, int char4, int char3, int char2, int char1, int char0) {
 	string password;
 	password.resize(passwordLen);
 	string hash;
@@ -132,7 +96,7 @@ string findHash(string goalHash, int passwordLen, int incrementn = 1, int increm
 						if (found)break;
 
 					}
-					if (hashes > 9999) {
+					if (hashes > 2999) {
 						end_time = std::chrono::high_resolution_clock::now();
 						time = end_time - start_time;
 						std::cout << "time:" << time / std::chrono::milliseconds(1) << " hashes per second: " << (hashes / ((time / std::chrono::milliseconds(1)) / 1000.0)) << endl;
@@ -153,7 +117,10 @@ string findHash(string goalHash, int passwordLen, int incrementn = 1, int increm
 
 	}
 
-	std::cout << "I FOUND IT! " << found << " password is: " << password << endl;
+	while(found)
+		std::cout << "I FOUND IT! " << found << " password is: " << password << endl;
+	
+	return password;
 }
 
 
@@ -226,20 +193,23 @@ string generateHash(string password, string salt, string magic) {
 
 	string output = "";
 	bitset<6> curChar;
-	for (int i = 1; i < 127; i += 6) {
-		curChar[5] = b[i+4];
-		curChar[4] = b[i +3];
+	for (int i = 127; i > 0; i -= 6) {
+		
 		if (i > 1) {
-			curChar[3] = b[i +2];
-			curChar[2] = b[i +1];
-			curChar[1] = b[i];
-			curChar[0] = b[i-1];
+			curChar[5] = b[i - 5];
+			curChar[4] = b[i - 4];
+			curChar[3] = b[i - 3];
+			curChar[2] = b[i -2 ];
+			curChar[1] = b[i- 1];
+			curChar[0] = b[i];
 		}
 		else {
+			curChar[5] = 0;
+			curChar[4] = 0;
 			curChar[3] = 0;
 			curChar[2] = 0;
-			curChar[1] = 0;
-			curChar[0] = 0;
+			curChar[1] = b[i - 1];
+			curChar[0] = b[i];
 		}
 		
 		int charPos = (int)(curChar.to_ulong());
