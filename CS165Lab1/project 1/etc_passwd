@@ -25,7 +25,7 @@ team23:x:1024:1024:,,,:/home/team23:/bin/bash
 team24:x:1025:1025:,,,:/home/team24:/bin/bash
 team25:x:1026:1026:,,,:/home/team25:/bin/bash
 team26:x:1027:1027:,,,:/home/team26:/bin/bash
-team27:x:1028:1028:,,,:/home/team27:/bin/bash
+team27:x:1028:1028:,,,:/home/team27:/bin/bash	password:jpeqbk
 team28:x:1029:1029:,,,:/home/team28:/bin/bash
 team29:x:1030:1030:,,,:/home/team29:/bin/bash
 team30:x:1031:1031:,,,:/home/team30:/bin/bash

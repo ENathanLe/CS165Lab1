@@ -11,6 +11,7 @@
 #include <chrono>
 #include <thread>
 #include <vector>
+#include <include\openssl\md5.h>
 
 
 using namespace std;
@@ -31,7 +32,7 @@ string findHash(int passwordLen, int incrementn, int incrementm, int char5, int 
 
 int main()
 {
-	/*
+	
 	string password = "aaaaaa";
 	bool found = false;
 	string hash;
@@ -39,14 +40,14 @@ int main()
 	auto start_time = std::chrono::high_resolution_clock::now();
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto time = end_time - start_time;
-	*/
 	
-	const int numThreads = 2;
+	
+	const int numThreads = 13;
 	
 	vector<std::thread> threads;
 	
 	for (int i = 0; i < numThreads; i++) {
-		threads.push_back(std::thread(findHash, PASSWORDSIZE, numThreads, 1, i, 0, 0, 0, 0, 0));
+		threads.push_back(std::thread(findHash, PASSWORDSIZE, numThreads, 1, i, 0, 0, 0, 0, 7));
 	}
 
 	for (std::thread& t : threads) {
@@ -54,13 +55,13 @@ int main()
 			t.join();
 	}
 
-	/*
-	password = "czormg";
+	
+	password = "zahroy";
 	hash = generateHash(password, SALT, MAGIC);
-	if (hash == "rhb3sPONC2VlUS2CG4JFe0")
+	if (hash == "NFqHx2WW/kpjgFaQz0C810")
 		std::cout << "matches" << endl;
-	std::cout << "hash: " << hash << "\ndesired: rhb3sPONC2VlUS2CG4JFe0" << endl;
-	*/
+	std::cout << "hash: " << hash << "\ndesired: NFqHx2WW/kpjgFaQz0C810" << endl;
+	
 
 }
 
